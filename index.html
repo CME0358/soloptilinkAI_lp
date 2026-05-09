@@ -162,15 +162,16 @@ nav {
 }
 
 .hero-inner {
-  max-width: 760px;
+  max-width: 1160px;
   margin: 0 auto;
   position: relative;
   z-index: 3;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 60px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
   width: 100%;
+  padding-left: 40px;
 }
 
 .hero-badge {
@@ -205,6 +206,7 @@ nav {
   color: var(--white);
   letter-spacing: -1px;
   margin-bottom: 20px;
+  text-align: left;
 }
 .hero-h1 .hl {
   background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
@@ -218,6 +220,8 @@ nav {
   color: var(--text2);
   margin-bottom: 40px;
   line-height: 1.8;
+  text-align: left;
+  max-width: 560px;
 }
 .hero-sub strong { color: var(--text); }
 
@@ -225,7 +229,28 @@ nav {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-bottom: 48px;
 }
+.hero-stat-bar {
+  display: flex;
+  gap: 40px;
+  padding: 24px 28px;
+  background: rgba(5,10,18,0.5);
+  border: 1px solid rgba(0,140,255,0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+.hero-stat { display: flex; flex-direction: column; }
+.hero-stat .val {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+}
+.hero-stat .val span { color: var(--blue); }
+.hero-stat .lbl { font-size: 11px; color: var(--text3); margin-top: 5px; letter-spacing: 0.5px; }
 
 .btn-primary {
   background: var(--accent);
@@ -268,6 +293,20 @@ nav {
 .btn-secondary:hover {
   border-color: rgba(0,140,255,0.4);
   background: rgba(0,140,255,0.05);
+}
+/* 常時アクティブ状態ボタン */
+.btn-lit {
+  border-color: rgba(0,140,255,0.5) !important;
+  background: rgba(0,140,255,0.1) !important;
+  color: var(--blue-light) !important;
+  box-shadow: 0 0 20px rgba(0,140,255,0.18), inset 0 0 14px rgba(0,140,255,0.07);
+  transition: none !important;
+}
+.btn-lit:hover {
+  border-color: rgba(0,140,255,0.5) !important;
+  background: rgba(0,140,255,0.1) !important;
+  transform: none !important;
+  box-shadow: 0 0 20px rgba(0,140,255,0.18), inset 0 0 14px rgba(0,140,255,0.07) !important;
 }
 
 .btn-ghost {
@@ -1085,7 +1124,7 @@ footer p { font-size: 12px; color: var(--text3); }
   <div class="hero-glow"></div>
   <div class="hero-glow2"></div>
   <div class="hero-inner">
-    <div class="hero-left" style="text-align:left;max-width:680px;">
+    <div class="hero-left">
       <div class="hero-badge fade-in">
         <span class="badge-dot"></span>
         32 AI Agents · 485+ Modules · 22 Domains
@@ -1102,8 +1141,7 @@ footer p { font-size: 12px; color: var(--text3); }
       </p>
       <div class="hero-ctas fade-in-4">
         <a href="#cta-final" class="btn-primary">→ 無料相談する</a>
-        <a href="#difference" class="btn-secondary">デモを見る</a>
-        <a href="#roi" class="btn-ghost">開発コスト診断 ↓</a>
+        <a href="#roi" class="btn-secondary btn-lit">開発コストダウン診断 ↓</a>
       </div>
       <div class="hero-stat-bar fade-in-4">
         <div class="hero-stat">
