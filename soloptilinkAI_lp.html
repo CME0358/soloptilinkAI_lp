@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoloptiLinkAI | 社内に"AI開発組織"を置く</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050a12;
+  --bg2: #080f1c;
+  --surface: #0d1828;
+  --surface2: #111e30;
+  --border: rgba(0,140,255,0.12);
+  --blue: #0a84ff;
+  --blue-light: #40a9ff;
+  --cyan: #00d4ff;
+  --accent: #06C755;
+  --accent2: #00ffb3;
+  --text: #e8f0fe;
+  --text2: #8fa8c8;
+  --text3: #4a6480;
+  --white: #ffffff;
+  --red: #ff4d4d;
+  --gold: #f0b429;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ===== GLOBAL UTILS ===== */
+.mono { font-family: 'Space Mono', monospace; }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 100px 0; }
+
+/* ===== NOISE OVERLAY ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.3;
+}
+
+/* ===== HEADER / NAV ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 24px;
+  background: rgba(5,10,18,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.5px;
+}
+.logo span { color: var(--blue); }
+
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  background: var(--blue);
+  color: var(--white) !important;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  transition: background 0.2s, transform 0.2s !important;
+}
+.nav-cta:hover { background: var(--blue-light) !important; transform: translateY(-1px); }
+
+/* ===== HERO ===== */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 100px 24px 60px;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,140,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,140,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(10,132,255,0.12) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.hero-glow2 {
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+  top: 20%; right: 10%;
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,132,255,0.1);
+  border: 1px solid rgba(10,132,255,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+  color: var(--blue-light);
+  margin-bottom: 28px;
+  letter-spacing: 0.5px;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  background: var(--accent2);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero-h1 {
+  font-size: clamp(38px, 5vw, 60px);
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--white);
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+.hero-h1 .hl {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: var(--text2);
+  margin-bottom: 40px;
+  line-height: 1.8;
+}
+.hero-sub strong { color: var(--text); }
+
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--white);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 30px rgba(6,199,85,0.25);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 40px rgba(6,199,85,0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 14px 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-secondary:hover {
+  border-color: rgba(0,140,255,0.4);
+  background: rgba(0,140,255,0.05);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--blue-light);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 14px 20px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-ghost:hover { text-decoration: underline; }
+
+/* Hero Right - Agent Visualization */
+.hero-visual {
+  position: relative;
+  height: 460px;
+}
+
+.agent-hub {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px; height: 120px;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 100%);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 60px rgba(10,132,255,0.4);
+  z-index: 5;
+}
+.agent-hub .hub-label {
+  font-size: 10px;
+  font-family: 'Space Mono', monospace;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+}
+.agent-hub .hub-icon { font-size: 36px; }
+
+.agent-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(0,140,255,0.2);
+}
+.ring1 { width: 200px; height: 200px; animation: rotate 20s linear infinite; }
+.ring2 { width: 320px; height: 320px; animation: rotate 30s linear infinite reverse; }
+.ring3 { width: 440px; height: 440px; animation: rotate 40s linear infinite; }
+
+@keyframes rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.agent-node {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 70px; height: 70px;
+  margin: -35px 0 0 -35px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: 'Space Mono', monospace;
+  color: var(--text2);
+  cursor: default;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.agent-node:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 20px rgba(10,132,255,0.2);
+  color: var(--white);
+}
+.agent-node .node-icon { font-size: 20px; margin-bottom: 2px; }
+
+/* Position nodes around rings */
+.node-1  { transform: rotate(0deg)   translate(100px) rotate(0deg); }
+.node-2  { transform: rotate(72deg)  translate(100px) rotate(-72deg); }
+.node-3  { transform: rotate(144deg) translate(100px) rotate(-144deg); }
+.node-4  { transform: rotate(216deg) translate(100px) rotate(-216deg); }
+.node-5  { transform: rotate(288deg) translate(100px) rotate(-288deg); }
+.node-6  { transform: rotate(0deg)   translate(160px) rotate(0deg); }
+.node-7  { transform: rotate(60deg)  translate(160px) rotate(-60deg); }
+.node-8  { transform: rotate(120deg) translate(160px) rotate(-120deg); }
+.node-9  { transform: rotate(180deg) translate(160px) rotate(-180deg); }
+.node-10 { transform: rotate(240deg) translate(160px) rotate(-240deg); }
+.node-11 { transform: rotate(300deg) translate(160px) rotate(-300deg); }
+
+.hero-stat-bar {
+  display: flex;
+  gap: 32px;
+  margin-top: 48px;
+}
+.hero-stat { display: flex; flex-direction: column; }
+.hero-stat .val {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+}
+.hero-stat .val span { color: var(--blue); }
+.hero-stat .lbl { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+/* ===== PROBLEM SECTION ===== */
+#problem {
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  padding: 100px 0;
+}
+
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 16px;
+}
+.section-tag::before {
+  content: '';
+  display: block;
+  width: 20px; height: 1px;
+  background: var(--blue);
+}
+
+.section-h2 {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+}
+
+.section-lead {
+  font-size: 17px;
+  color: var(--text2);
+  max-width: 600px;
+  margin-bottom: 56px;
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+.problem-card {
+  background: var(--surface);
+  padding: 36px 28px;
+}
+.problem-card .p-icon {
+  width: 44px; height: 44px;
+  background: rgba(255,77,77,0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+.problem-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+.problem-card ul { list-style: none; }
+.problem-card ul li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 5px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.problem-card ul li::before {
+  content: '—';
+  color: var(--text3);
+  flex-shrink: 0;
+  margin-top: 0px;
+}
+
+.problem-cta-banner {
+  background: linear-gradient(90deg, rgba(10,132,255,0.08) 0%, rgba(0,212,255,0.05) 100%);
+  border: 1px solid rgba(10,132,255,0.2);
+  border-radius: 12px;
+  padding: 28px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.problem-cta-banner p {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+}
+.problem-cta-banner p span { color: var(--blue-light); }
+
+/* ===== DIFFERENCE SECTION ===== */
+#difference { padding: 100px 0; }
+
+.diff-compare {
+  display: grid;
+  grid-template-columns: 1fr 64px 1fr;
+  gap: 0;
+  align-items: start;
+  margin-top: 56px;
+}
+
+.diff-col {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.diff-col.sol { background: linear-gradient(160deg, rgba(10,132,255,0.08) 0%, var(--surface2) 100%); border: 1px solid rgba(10,132,255,0.2); }
+
+.diff-header {
+  padding: 20px 28px;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.diff-header.bad { background: rgba(255,77,77,0.05); }
+.diff-header.good { background: rgba(10,132,255,0.08); }
+.diff-header h3 { font-size: 14px; font-weight: 700; color: var(--text2); }
+.diff-col.sol .diff-header h3 { color: var(--blue-light); }
+
+.diff-rows { padding: 8px 0; }
+.diff-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.diff-row:last-child { border-bottom: none; }
+.diff-row .mark {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.mark-x { background: rgba(255,77,77,0.1); color: var(--red); }
+.mark-ok { background: rgba(10,132,255,0.1); color: var(--blue-light); }
+.diff-row span { font-size: 13px; color: var(--text2); }
+.diff-col.sol .diff-row span { color: var(--text); }
+
+.diff-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-top: 120px;
+}
+.vs-badge {
+  width: 48px; height: 48px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text3);
+}
+
+/* ===== AGENTS SECTION ===== */
+#agents {
+  padding: 100px 0;
+  background: var(--bg2);
+}
+
+.agents-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  margin-bottom: 64px;
+}
+
+.agents-display {
+  position: relative;
+  height: 360px;
+}
+
+.flow-step {
+  position: relative;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 2px;
+}
+.flow-step.trigger {
+  background: rgba(10,132,255,0.08);
+  border-color: rgba(10,132,255,0.3);
+}
+.flow-step.result {
+  background: rgba(6,199,85,0.06);
+  border-color: rgba(6,199,85,0.25);
+}
+
+.flow-step .step-icon { font-size: 20px; }
+.flow-step .step-text { flex: 1; }
+.flow-step .step-text .title { font-size: 13px; font-weight: 700; color: var(--white); }
+.flow-step .step-text .desc { font-size: 11px; color: var(--text3); }
+.flow-step .step-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(10,132,255,0.15);
+  color: var(--blue-light);
+}
+.flow-step.result .step-badge {
+  background: rgba(6,199,85,0.15);
+  color: var(--accent);
+}
+
+.flow-arrow {
+  text-align: center;
+  color: var(--text3);
+  font-size: 20px;
+  padding: 4px 0;
+}
+
+.agents-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.agent-card {
+  background: var(--surface);
+  padding: 20px;
+  transition: background 0.2s;
+}
+.agent-card:hover { background: var(--surface2); }
+.agent-card .a-icon { font-size: 24px; margin-bottom: 8px; }
+.agent-card .a-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.agent-card .a-role { font-size: 11px; color: var(--text3); }
+
+/* ===== BEFORE AFTER ===== */
+#results { padding: 100px 0; }
+
+.ba-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 56px;
+}
+
+.ba-col { border-radius: 16px; overflow: hidden; }
+
+.ba-header {
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ba-header.before { background: rgba(255,77,77,0.08); border-bottom: 1px solid rgba(255,77,77,0.15); }
+.ba-header.after  { background: rgba(6,199,85,0.08); border-bottom: 1px solid rgba(6,199,85,0.15); }
+.ba-header h3 { font-size: 15px; font-weight: 700; }
+.ba-header.before h3 { color: #ff8080; }
+.ba-header.after h3 { color: var(--accent); }
+
+.ba-items { padding: 8px 0; background: var(--surface); }
+.ba-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.ba-item:last-child { border-bottom: none; }
+.ba-item .bi {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ba-item .bt { font-size: 13px; color: var(--text2); }
+
+/* ===== COMPARISON TABLE ===== */
+#compare { padding: 100px 0; background: var(--bg2); }
+
+.comp-table-wrap {
+  margin-top: 56px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.comp-table th, .comp-table td {
+  padding: 16px 20px;
+  text-align: center;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.comp-table thead th { background: var(--surface2); font-weight: 700; color: var(--text2); }
+.comp-table thead th:first-child { text-align: left; }
+.comp-table thead th.hl-col { background: rgba(10,132,255,0.12); color: var(--blue-light); }
+.comp-table td:first-child { text-align: left; color: var(--text2); background: var(--surface); }
+.comp-table td { background: var(--surface); color: var(--text3); }
+.comp-table td.hl-col { background: rgba(10,132,255,0.05); color: var(--text); font-weight: 600; }
+.comp-table tr:last-child td { border-bottom: none; }
+.ok  { color: var(--accent); }
+.bad { color: var(--red); }
+.mid { color: var(--gold); }
+
+/* ===== USE CASES ===== */
+#usecases { padding: 100px 0; }
+
+.usecase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.uc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.uc-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+.uc-card:hover { border-color: rgba(10,132,255,0.3); transform: translateY(-4px); }
+.uc-card:hover::before { transform: scaleX(1); }
+.uc-card .dept {
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  color: var(--blue);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.uc-card .command {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--cyan);
+  margin-bottom: 16px;
+}
+.uc-card .command::before { content: '❯ '; color: var(--text3); }
+.uc-card h4 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.uc-card p { font-size: 12px; color: var(--text3); line-height: 1.6; }
+
+/* ===== ROI ===== */
+#roi { padding: 100px 0; background: var(--bg2); }
+
+.roi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+}
+
+.roi-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.roi-card .icon { font-size: 36px; margin-bottom: 16px; }
+.roi-card .roi-label { font-size: 12px; color: var(--text3); margin-bottom: 8px; letter-spacing: 1px; font-family: 'Space Mono', monospace; text-transform: uppercase; }
+.roi-card .before-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--red);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.roi-card .after-val {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  line-height: 1;
+  margin-top: 4px;
+}
+.roi-card .roi-note { font-size: 12px; color: var(--text3); margin-top: 8px; }
+
+.roi-banner {
+  background: linear-gradient(90deg, rgba(6,199,85,0.06), rgba(0,212,255,0.06));
+  border: 1px solid rgba(6,199,85,0.2);
+  border-radius: 14px;
+  padding: 36px;
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 24px;
+}
+.roi-banner h3 { font-size: 20px; font-weight: 900; color: var(--white); line-height: 1.4; }
+.roi-banner h3 span { color: var(--accent); }
+.roi-banner p { font-size: 13px; color: var(--text3); margin-top: 8px; }
+.roi-banner .big-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 52px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  text-align: right;
+}
+.roi-banner .big-num small { font-size: 16px; color: var(--text3); }
+
+/* ===== SECURITY ===== */
+#security { padding: 100px 0; }
+
+.sec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+.sec-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.sec-card .s-icon { font-size: 28px; margin-bottom: 12px; }
+.sec-card h4 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.sec-card p { font-size: 12px; color: var(--text3); line-height: 1.6; }
+
+/* ===== TESTIMONIALS ===== */
+#testimonials { padding: 100px 0; background: var(--bg2); }
+
+.testi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+.testi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+}
+.testi-card .quote-mark {
+  font-size: 48px;
+  color: var(--blue);
+  opacity: 0.3;
+  line-height: 1;
+  font-family: 'DM Serif Display', serif;
+  margin-bottom: 4px;
+}
+.testi-card p {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+.testi-card .author { display: flex; align-items: center; gap: 12px; }
+.testi-card .avatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: white;
+}
+.testi-card .author-info .name { font-size: 13px; font-weight: 700; color: var(--white); }
+.testi-card .author-info .role { font-size: 11px; color: var(--text3); }
+
+.testi-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 40px;
+}
+.tm-card {
+  background: var(--surface);
+  padding: 24px;
+  text-align: center;
+}
+.tm-card .tm-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--blue-light);
+  line-height: 1;
+}
+.tm-card .tm-label { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+/* ===== PRICING ===== */
+#pricing { padding: 100px 0; }
+
+.price-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 56px;
+  align-items: start;
+}
+
+.price-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.price-col.featured {
+  background: linear-gradient(160deg, rgba(10,132,255,0.08), var(--surface2));
+  border-color: rgba(10,132,255,0.35);
+  box-shadow: 0 0 40px rgba(10,132,255,0.1);
+}
+.price-col-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.price-col-header .plan { font-size: 11px; font-family: 'Space Mono', monospace; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+.price-col-header .amount { font-size: 28px; font-weight: 900; color: var(--white); font-family: 'Space Mono', monospace; line-height: 1.1; margin-top: 8px; }
+.price-col-header .amount small { font-size: 13px; color: var(--text3); font-family: 'Noto Sans JP', sans-serif; }
+.price-col-header .sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+.price-features { padding: 16px 0; }
+.price-feature {
+  padding: 10px 24px;
+  font-size: 12px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.price-feature::before { content: '✓'; color: var(--accent); flex-shrink: 0; }
+.price-feature:last-child { border-bottom: none; }
+
+.price-label-col { background: transparent !important; border: none !important; }
+.price-label-col .price-col-header { background: transparent; border: none; padding-top: 0; }
+.price-label-row { padding: 10px 0; font-size: 12px; color: var(--text3); border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; min-height: 41px; }
+.price-label-row:last-child { border-bottom: none; }
+
+/* ===== STEPS ===== */
+#steps { padding: 100px 0; background: var(--bg2); }
+
+.steps-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 56px;
+  position: relative;
+}
+.steps-track::before {
+  content: '';
+  position: absolute;
+  top: 36px;
+  left: calc(12.5%);
+  right: calc(12.5%);
+  height: 1px;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+}
+
+.step-card { padding: 0 16px; text-align: center; }
+.step-num {
+  width: 72px; height: 72px;
+  background: var(--surface2);
+  border: 2px solid var(--blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--blue);
+  margin: 0 auto 20px;
+  position: relative;
+  z-index: 1;
+  background: var(--bg2);
+}
+.step-card h4 { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.step-card p { font-size: 12px; color: var(--text3); line-height: 1.6; }
+.step-badge {
+  display: inline-block;
+  background: rgba(10,132,255,0.1);
+  color: var(--blue-light);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+/* ===== FAQ ===== */
+#faq { padding: 100px 0; }
+.faq-list { margin-top: 56px; }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 24px 0;
+}
+.faq-q {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+}
+.faq-q .q-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  background: rgba(10,132,255,0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.faq-q h4 { font-size: 16px; font-weight: 700; color: var(--white); flex: 1; }
+.faq-a {
+  margin-top: 12px;
+  margin-left: 50px;
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+
+/* ===== CTA FINAL ===== */
+#cta-final {
+  padding: 120px 24px;
+  background: var(--bg2);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+#cta-final::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 800px; height: 400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(10,132,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cta-tag {
+  display: inline-block;
+  background: rgba(6,199,85,0.1);
+  border: 1px solid rgba(6,199,85,0.25);
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.cta-h2 {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+}
+.cta-h2 .hl {
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cta-sub {
+  font-size: 16px;
+  color: var(--text2);
+  max-width: 520px;
+  margin: 0 auto 48px;
+  line-height: 1.8;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.cta-note { font-size: 12px; color: var(--text3); }
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 48px 24px;
+}
+.footer-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+footer .logo { font-size: 16px; }
+footer p { font-size: 12px; color: var(--text3); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.7s ease both; }
+.fade-in-2 { animation: fadeInUp 0.7s 0.15s ease both; }
+.fade-in-3 { animation: fadeInUp 0.7s 0.3s ease both; }
+.fade-in-4 { animation: fadeInUp 0.7s 0.45s ease both; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 960px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  .problem-grid { grid-template-columns: 1fr; gap: 1px; }
+  .diff-compare { grid-template-columns: 1fr; gap: 16px; }
+  .diff-vs { display: none; }
+  .agents-intro { grid-template-columns: 1fr; }
+  .ba-grid { grid-template-columns: 1fr; }
+  .roi-grid { grid-template-columns: 1fr; }
+  .usecase-grid { grid-template-columns: 1fr; }
+  .sec-grid { grid-template-columns: 1fr; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .testi-metrics { grid-template-columns: 1fr 1fr; }
+  .price-grid { grid-template-columns: 1fr; }
+  .price-label-col { display: none; }
+  .steps-track { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .steps-track::before { display: none; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Solopti<span>Link</span>AI</div>
+    <div class="nav-links">
+      <a href="#problem">課題</a>
+      <a href="#difference">違い</a>
+      <a href="#agents">機能</a>
+      <a href="#roi">ROI</a>
+      <a href="#pricing">料金</a>
+      <a href="#cta-final" class="nav-cta">無料相談する</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge fade-in">
+        <span class="badge-dot"></span>
+        32 AI Agents · 485+ Modules · 22 Domains
+      </div>
+      <h1 class="hero-h1 fade-in-2">
+        社内に、<br>
+        <span class="hl">"AI開発組織"</span><br>
+        を置く。
+      </h1>
+      <p class="hero-sub fade-in-3">
+        要件定義、設計、実装、テスト、セキュリティ、公開まで。<br>
+        <strong>32のAIエージェント</strong>が開発チームのように協調稼働。<br>
+        エンジニア採用も、数百万円の外注も不要。
+      </p>
+      <div class="hero-ctas fade-in-4">
+        <a href="#cta-final" class="btn-primary">→ 無料相談する</a>
+        <a href="#difference" class="btn-secondary">デモを見る</a>
+        <a href="#roi" class="btn-ghost">開発コスト診断 ↓</a>
+      </div>
+      <div class="hero-stat-bar fade-in-4">
+        <div class="hero-stat">
+          <div class="val">1/5<span>以下</span></div>
+          <div class="lbl">競合比コスト</div>
+        </div>
+        <div class="hero-stat">
+          <div class="val">97<span>%</span></div>
+          <div class="lbl">開発期間短縮</div>
+        </div>
+        <div class="hero-stat">
+          <div class="val">11<span>社</span></div>
+          <div class="lbl">リリース1週間導入</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-visual">
+        <div class="agent-ring ring1"></div>
+        <div class="agent-ring ring2"></div>
+        <div class="agent-ring ring3"></div>
+        <div class="agent-hub">
+          <div class="hub-icon">🤖</div>
+          <div class="hub-label">AI HUB</div>
+        </div>
+        <div class="agent-node node-1"><div class="node-icon">📋</div>PM AI</div>
+        <div class="agent-node node-2"><div class="node-icon">⚙️</div>Backend</div>
+        <div class="agent-node node-3"><div class="node-icon">🎨</div>Frontend</div>
+        <div class="agent-node node-4"><div class="node-icon">🔐</div>Security</div>
+        <div class="agent-node node-5"><div class="node-icon">🧪</div>QA AI</div>
+        <div class="agent-node node-6"><div class="node-icon">🗄️</div>DBA AI</div>
+        <div class="agent-node node-7"><div class="node-icon">🚀</div>Deploy</div>
+        <div class="agent-node node-8"><div class="node-icon">🧠</div>AI Layer</div>
+        <div class="agent-node node-9"><div class="node-icon">📱</div>iOS AI</div>
+        <div class="agent-node node-10"><div class="node-icon">☁️</div>SaaS AI</div>
+        <div class="agent-node node-11"><div class="node-icon">📊</div>Analytics</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="section">
+  <div class="container">
+    <div class="section-tag">現状の課題</div>
+    <h2 class="section-h2">なぜ、企業は<br>開発できないのか？</h2>
+    <p class="section-lead">問題はアイデア不足ではない。"開発組織を持てない"こと。日本の中小企業の95.4%がDXを実施できていない現実がある。</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="p-icon">💸</div>
+        <h3>コストが高い</h3>
+        <ul>
+          <li>大手SIer：数百万〜数億円</li>
+          <li>高額AIサービス：年間1,200万円</li>
+          <li>エンタープライズSaaS：人数課金で膨大</li>
+          <li>エンジニア採用：月80〜150万円</li>
+        </ul>
+      </div>
+      <div class="problem-card">
+        <div class="p-icon">👤</div>
+        <h3>人材がいない</h3>
+        <ul>
+          <li>エンジニア不足で採用困難</li>
+          <li>2030年に79万人不足と予測</li>
+          <li>教育コスト：戦力化まで半年〜1年</li>
+          <li>採用しても定着しないリスク</li>
+        </ul>
+      </div>
+      <div class="problem-card">
+        <div class="p-icon">⏳</div>
+        <h3>時間がかかる</h3>
+        <ul>
+          <li>要件定義〜本番稼働：6〜12ヶ月</li>
+          <li>修正のたびに追加費用が発生</li>
+          <li>技術の陳腐化リスク</li>
+          <li>ChatGPTでは完成しない</li>
+        </ul>
+      </div>
+    </div>
+    <div class="problem-cta-banner">
+      <p>多くの企業は、<span>"開発組織不足"</span>で止まっている。</p>
+      <a href="#difference" class="btn-primary">解決策を見る →</a>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFERENCE -->
+<section id="difference" class="section">
+  <div class="container">
+    <div class="section-tag">根本的な違い</div>
+    <h2 class="section-h2">AIを使うのではなく、<br>AI組織を持つ。</h2>
+    <p class="section-lead">ChatGPTは「道具」。SoloptiLinkAIは「完成品を届けるサービス」。比較対象はAIツールではなく、SIerや採用だ。</p>
+    <div class="diff-compare">
+      <div class="diff-col">
+        <div class="diff-header bad">
+          <span style="font-size:18px">❌</span>
+          <h3>従来のAIツール（ChatGPT / Claude Code）</h3>
+        </div>
+        <div class="diff-rows">
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>1つの指示に1つの回答（一問一答）</span></div>
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>長い指示を自分で書く必要がある</span></div>
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>コードの品質チェックは自分の目</span></div>
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>エラーが出たら自分で修正指示</span></div>
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>設計・テスト・デプロイは別途対応</span></div>
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>"動くけど本番で使えない"コードが多発</span></div>
+          <div class="diff-row"><div class="mark mark-x">✗</div><span>エンジニアのスキルが必須</span></div>
+        </div>
+      </div>
+      <div class="diff-vs"><div class="vs-badge">VS</div></div>
+      <div class="diff-col sol">
+        <div class="diff-header good">
+          <span style="font-size:18px">✅</span>
+          <h3>SoloptiLinkAI</h3>
+        </div>
+        <div class="diff-rows">
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>一言→32人のAIチームが動き出す</span></div>
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>日本語で「作って」と伝えるだけ</span></div>
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>7軸自動検証＋自動修復（人間不要）</span></div>
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>自動検出→自動修復（最大50回ループ）</span></div>
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>要件定義〜インターネット公開まで全自動</span></div>
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>本番そのまま投入できるコード品質</span></div>
+          <div class="diff-row"><div class="mark mark-ok">✓</div><span>スキル不要で誰でもOK</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section id="agents" class="section">
+  <div class="container">
+    <div class="section-tag">仕組み</div>
+    <h2 class="section-h2">32 AI エージェントが<br>専門チームとして動く。</h2>
+    <div class="agents-intro">
+      <div>
+        <p class="section-lead" style="margin-bottom:0">一般的なAIは"答えるだけ"。SoloptiLinkAIは各専門AIが役割分担し、相互検証しながら本番レベルのシステムを完成させます。</p>
+        <div style="margin-top:32px;display:flex;flex-direction:column;gap:2px;">
+          <div class="flow-step trigger">
+            <div class="step-icon">🗣️</div>
+            <div class="step-text"><div class="title">「顧客管理CRMを作って」</div><div class="desc">日本語で一言伝えるだけ</div></div>
+            <span class="step-badge">30秒</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">
+            <div class="step-icon">🧠</div>
+            <div class="step-text"><div class="title">要件定義・設計・実装・テスト</div><div class="desc">32AIエージェントが協調稼働</div></div>
+            <span class="step-badge">自動</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">
+            <div class="step-icon">🔐</div>
+            <div class="step-text"><div class="title">7軸品質検証・OWASP監査</div><div class="desc">自動検出→自動修復（最大50回）</div></div>
+            <span class="step-badge">自動</span>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step result">
+            <div class="step-icon">🚀</div>
+            <div class="step-text"><div class="title">本番公開完了</div><div class="desc">Vercel / Railway にワンクリックデプロイ</div></div>
+            <span class="step-badge">即日</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="agents-list">
+          <div class="agent-card"><div class="a-icon">📋</div><div class="a-name">PM AI</div><div class="a-role">要件定義・進行管理</div></div>
+          <div class="agent-card"><div class="a-icon">⚙️</div><div class="a-name">Backend AI</div><div class="a-role">API・DB設計・実装</div></div>
+          <div class="agent-card"><div class="a-icon">🎨</div><div class="a-name">Frontend AI</div><div class="a-role">UI/UX・コンポーネント</div></div>
+          <div class="agent-card"><div class="a-icon">🔐</div><div class="a-name">Security AI</div><div class="a-role">OWASP Top10監査</div></div>
+          <div class="agent-card"><div class="a-icon">🧪</div><div class="a-name">QA AI</div><div class="a-role">E2Eテスト自動生成</div></div>
+          <div class="agent-card"><div class="a-icon">🗄️</div><div class="a-name">DBA AI</div><div class="a-role">DB最適化・マイグレ</div></div>
+          <div class="agent-card"><div class="a-icon">🚀</div><div class="a-name">Deploy AI</div><div class="a-role">Vercel・Railway公開</div></div>
+          <div class="agent-card"><div class="a-icon">📱</div><div class="a-name">iOS AI</div><div class="a-role">SwiftUI・CoreData</div></div>
+          <div class="agent-card"><div class="a-icon">🧠</div><div class="a-name">AI Layer</div><div class="a-role">LLM/RAGパイプライン</div></div>
+        </div>
+        <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px;font-family:'Space Mono',monospace">+ 23 more specialized agents</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE AFTER -->
+<section id="results" class="section">
+  <div class="container">
+    <div class="section-tag">導入効果</div>
+    <h2 class="section-h2">"システムを作れない会社"から<br>"必要ならすぐ作れる会社"へ。</h2>
+    <div class="ba-grid">
+      <div class="ba-col">
+        <div class="ba-header before"><span>😰</span><h3>BEFORE — 開発組織がない会社</h3></div>
+        <div class="ba-items">
+          <div class="ba-item"><div class="bi">😤</div><div class="bt">作りたいのに6〜12ヶ月待ち</div></div>
+          <div class="ba-item"><div class="bi">😓</div><div class="bt">IT部門がボトルネックで全体が止まる</div></div>
+          <div class="ba-item"><div class="bi">💸</div><div class="bt">修正のたびに追加費用が発生</div></div>
+          <div class="ba-item"><div class="bi">🛑</div><div class="bt">社内改善がエンジニア待ちで止まる</div></div>
+          <div class="ba-item"><div class="bi">😰</div><div class="bt">DXが掛け声だけで進まない</div></div>
+        </div>
+      </div>
+      <div class="ba-col">
+        <div class="ba-header after"><span>🚀</span><h3>AFTER — SoloptiLinkAI導入後</h3></div>
+        <div class="ba-items">
+          <div class="ba-item"><div class="bi">⚡</div><div class="bt">思いついた日に開発・即日公開</div></div>
+          <div class="ba-item"><div class="bi">🔄</div><div class="bt">「直して」と言えば即改善される</div></div>
+          <div class="ba-item"><div class="bi">✅</div><div class="bt">修正費用ゼロ・無制限対応</div></div>
+          <div class="ba-item"><div class="bi">🔥</div><div class="bt">業務改善が止まらなくなる</div></div>
+          <div class="ba-item"><div class="bi">🏆</div><div class="bt">AI前提で会社全体が進化し続ける</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE TABLE -->
+<section id="compare" class="section">
+  <div class="container">
+    <div class="section-tag">競合比較</div>
+    <h2 class="section-h2">比較対象は、<br>AIツールではありません。</h2>
+    <p class="section-lead">月額20万円で"社内開発部"を持つ感覚。</p>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>比較項目</th>
+            <th class="hl-col">SoloptiLinkAI</th>
+            <th>ChatGPT系AI</th>
+            <th>ノーコード</th>
+            <th>大手SIer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>開発組織代替</td>
+            <td class="hl-col ok">◎</td>
+            <td class="bad">✗</td>
+            <td class="bad">✗</td>
+            <td class="mid">○</td>
+          </tr>
+          <tr>
+            <td>本番品質</td>
+            <td class="hl-col ok">◎</td>
+            <td class="mid">△</td>
+            <td class="mid">△</td>
+            <td class="mid">○</td>
+          </tr>
+          <tr>
+            <td>カスタム性</td>
+            <td class="hl-col ok">◎</td>
+            <td class="mid">△</td>
+            <td class="bad">✗</td>
+            <td class="mid">○</td>
+          </tr>
+          <tr>
+            <td>開発スピード</td>
+            <td class="hl-col ok">即日〜</td>
+            <td class="mid">△</td>
+            <td class="mid">即日</td>
+            <td class="bad">6ヶ月〜</td>
+          </tr>
+          <tr>
+            <td>エンジニア不要</td>
+            <td class="hl-col ok">◎</td>
+            <td class="bad">✗</td>
+            <td class="mid">○</td>
+            <td class="bad">✗</td>
+          </tr>
+          <tr>
+            <td>コスト</td>
+            <td class="hl-col ok">月20万円〜</td>
+            <td>月1〜3万円</td>
+            <td>月1万円〜</td>
+            <td class="bad">数百万〜</td>
+          </tr>
+          <tr>
+            <td>iOS対応</td>
+            <td class="hl-col ok">◎</td>
+            <td class="bad">✗</td>
+            <td class="bad">✗</td>
+            <td class="mid">○</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases" class="section">
+  <div class="container">
+    <div class="section-tag">活用シーン</div>
+    <h2 class="section-h2">実際に作られているもの</h2>
+    <p class="section-lead">テンプレートではなく"あなたの業務専用"に作る。22ドメイン対応。</p>
+    <div class="usecase-grid">
+      <div class="uc-card">
+        <div class="dept">営業部</div>
+        <div class="command">顧客管理CRM作って</div>
+        <h4>顧客管理・商談CRM</h4>
+        <p>顧客情報・商談履歴・売上分析ダッシュボード付きのCRMが即日稼働。</p>
+      </div>
+      <div class="uc-card">
+        <div class="dept">総務部</div>
+        <div class="command">社内ポータルを作って</div>
+        <h4>社内ポータル・申請システム</h4>
+        <p>お知らせ掲示板・マニュアル閲覧・各種申請フォームが一体化したポータル。</p>
+      </div>
+      <div class="uc-card">
+        <div class="dept">経理部</div>
+        <div class="command">経費精算システム作って</div>
+        <h4>経費精算・会計連携</h4>
+        <p>レシート登録・承認フロー・月次レポート自動生成・会計ソフト連携。</p>
+      </div>
+      <div class="uc-card">
+        <div class="dept">サービス業</div>
+        <div class="command">予約サイト作って</div>
+        <h4>予約システム</h4>
+        <p>カレンダー選択・自動確認メール・リマインド通知付きの予約サイトが公開可能な状態で完成。</p>
+      </div>
+      <div class="uc-card">
+        <div class="dept">物流・小売</div>
+        <div class="command">在庫管理アプリ作って</div>
+        <h4>在庫管理システム</h4>
+        <p>バーコード読取・入出庫記録・在庫アラート・発注自動化まで一気通貫。</p>
+      </div>
+      <div class="uc-card">
+        <div class="dept">医療・ヘルスケア</div>
+        <div class="command">患者管理システム作って</div>
+        <h4>医療・クリニック管理</h4>
+        <p>患者管理・予約・HIPAA対応。個人情報を扱う医療システムにも安心対応。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI -->
+<section id="roi" class="section">
+  <div class="container">
+    <div class="section-tag">ROI・コスト削減</div>
+    <h2 class="section-h2">コスト削減ではなく、<br>"事業スピード"を変える。</h2>
+    <div class="roi-grid">
+      <div class="roi-card">
+        <div class="icon">💰</div>
+        <div class="roi-label">年間開発費</div>
+        <div class="before-val">1,200万円〜</div>
+        <div class="after-val">290万円〜</div>
+        <div class="roi-note">高額AIサービス比 年間最大910万円削減</div>
+      </div>
+      <div class="roi-card">
+        <div class="icon">⏱️</div>
+        <div class="roi-label">開発期間</div>
+        <div class="before-val">6〜12ヶ月</div>
+        <div class="after-val">即日〜</div>
+        <div class="roi-note">97%の期間短縮。ビジネスチャンスを逃さない</div>
+      </div>
+      <div class="roi-card">
+        <div class="icon">👨‍💻</div>
+        <div class="roi-label">エンジニア採用</div>
+        <div class="before-val">月80〜150万円</div>
+        <div class="after-val">不要</div>
+        <div class="roi-note">採用・教育・離職リスクをまるごとゼロに</div>
+      </div>
+    </div>
+    <div class="roi-banner">
+      <div>
+        <h3>月1プロジェクトで<br><span>月間ROI 193%〜670%</span></h3>
+        <p>3〜6ヶ月×エンジニア月80万円 = 約320万円のプロジェクトが<br>数時間〜1日で完了。1プロジェクトあたり約316万円の価値を創出。</p>
+      </div>
+      <div>
+        <div class="big-num">316<small>万円/プロジェクト</small></div>
+        <p style="text-align:right;font-size:11px;color:var(--text3);margin-top:8px;">代替価値の差額</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section id="security" class="section">
+  <div class="container">
+    <div class="section-tag">セキュリティ</div>
+    <h2 class="section-h2">"動く"だけではなく、<br>"使える品質"まで保証。</h2>
+    <div class="sec-grid">
+      <div class="sec-card">
+        <div class="s-icon">🛡️</div>
+        <h4>OWASP Top10 自動監査</h4>
+        <p>SQL/XSS/CSRF/SSRF等の脆弱性を自動検出・修正。エンタープライズ基準のセキュリティを標準搭載。</p>
+      </div>
+      <div class="sec-card">
+        <div class="s-icon">📋</div>
+        <h4>コンプライアンス対応</h4>
+        <p>HIPAA/GDPR/PCI-DSSに自動対応。医療・金融など規制の厳しい業種にも対応可能。</p>
+      </div>
+      <div class="sec-card">
+        <div class="s-icon">🔒</div>
+        <h4>AES-256暗号化</h4>
+        <p>通信（TLS）とデータ（AES-256）の両方を暗号化。監査ログも全操作を自動記録。</p>
+      </div>
+      <div class="sec-card">
+        <div class="s-icon">🔑</div>
+        <h4>RBAC・認証</h4>
+        <p>ロールベースアクセス制御を自動実装。エンタープライズ認証も標準対応。</p>
+      </div>
+      <div class="sec-card">
+        <div class="s-icon">🔗</div>
+        <h4>依存関係セキュリティ</h4>
+        <p>npm audit等で脆弱なパッケージを自動検出。サプライチェーンリスクを最小化。</p>
+      </div>
+      <div class="sec-card">
+        <div class="s-icon">✅</div>
+        <h4>7軸品質検証</h4>
+        <p>モック検出・DB統合・CRUD完全性等を自動検証。最大50回の自動修復ループで品質保証。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" class="section">
+  <div class="container">
+    <div class="section-tag">導入実績</div>
+    <h2 class="section-h2">リリースからわずか1週間で<br>11社にご導入。</h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="quote-mark">"</div>
+        <p>社内ツールの開発依頼が溜まっていたが、これで解消できそう。月100万円の開発費が削減できるのは衝撃でした。</p>
+        <div class="author">
+          <div class="avatar">A</div>
+          <div class="author-info">
+            <div class="name">A社 経営企画部長</div>
+            <div class="role">エンジニア150名の大手企業</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="quote-mark">"</div>
+        <p>ITのことは全くわからないが、「作って」というだけで本当に動くシステムができた。時代が変わった実感があります。</p>
+        <div class="author">
+          <div class="avatar">B</div>
+          <div class="author-info">
+            <div class="name">B社 代表取締役</div>
+            <div class="role">非IT企業（農業）</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="quote-mark">"</div>
+        <p>自社の生産性向上のための導入。エンジニアの工数を高付加価値業務に集中できるようになり、大きな変化を感じています。</p>
+        <div class="author">
+          <div class="avatar">C</div>
+          <div class="author-info">
+            <div class="name">C社 CTO</div>
+            <div class="role">システム開発会社</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-metrics">
+      <div class="tm-card">
+        <div class="tm-num">97%</div>
+        <div class="tm-label">開発期間短縮</div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-num">1/5</div>
+        <div class="tm-label">コスト比（競合比）</div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-num">50回</div>
+        <div class="tm-label">最大自動修復ループ</div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-num">22</div>
+        <div class="tm-label">対応業種ドメイン</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="section">
+  <div class="container">
+    <div class="section-tag">料金体系</div>
+    <h2 class="section-h2">月額20万円〜で、<br>社内に開発組織を持つ。</h2>
+    <p class="section-lead">台数が増えるほど1端末あたりの単価がお得に。全プランに32AIエージェント・7軸品質検証・セキュリティ監査・デプロイが含まれます。</p>
+    <div class="price-grid">
+      <div class="price-col price-label-col">
+        <div class="price-col-header" style="border:none;background:transparent;">
+          <div style="height:60px"></div>
+        </div>
+        <div class="price-features" style="background:transparent;border:none;padding:8px 0;">
+          <div class="price-label-row">32AIエージェント</div>
+          <div class="price-label-row">7軸品質検証</div>
+          <div class="price-label-row">OWASP監査</div>
+          <div class="price-label-row">E2Eテスト自動生成</div>
+          <div class="price-label-row">インターネット公開</div>
+          <div class="price-label-row">修正・機能追加</div>
+          <div class="price-label-row">iOS対応</div>
+        </div>
+      </div>
+      <div class="price-col">
+        <div class="price-col-header">
+          <div class="plan">スタンダード</div>
+          <div class="amount">¥20万<small>/月</small></div>
+          <div class="sub">1端末 · 初期費用50万円</div>
+        </div>
+        <div class="price-features">
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">無制限</div>
+          <div class="price-feature">対応</div>
+        </div>
+      </div>
+      <div class="price-col featured">
+        <div class="price-col-header">
+          <div class="plan" style="color:var(--blue-light)">チーム（人気）</div>
+          <div class="amount">¥30万<small>/月〜</small></div>
+          <div class="sub">2端末 · 初期費用50万円</div>
+        </div>
+        <div class="price-features">
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">無制限</div>
+          <div class="price-feature">対応</div>
+        </div>
+      </div>
+      <div class="price-col">
+        <div class="price-col-header">
+          <div class="plan">エンタープライズ</div>
+          <div class="amount">¥37万〜<small>/月</small></div>
+          <div class="sub">3端末〜 · 4台目以降+5万/台</div>
+        </div>
+        <div class="price-features">
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">含む</div>
+          <div class="price-feature">無制限</div>
+          <div class="price-feature">対応</div>
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-top:16px;font-size:13px;color:var(--text3);">
+      別途お客様にてご契約いただくもの：Claude利用料 $110〜200/月（約¥17,000〜30,000）· Aqua Voice（音声入力）$10/月（約¥1,500）· ＊1年間契約、解約は2ヶ月前申告
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section id="steps" class="section">
+  <div class="container">
+    <div class="section-tag">導入ステップ</div>
+    <h2 class="section-h2">最短1週間で本番稼働。</h2>
+    <p class="section-lead">"開発開始まで数ヶ月"の時代ではない。</p>
+    <div class="steps-track">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h4>ヒアリング</h4>
+        <p>業務課題・目的確認。既存システムの把握。</p>
+        <div class="step-badge">1〜2日</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h4>環境構築</h4>
+        <p>SoloptiLinkAIセットアップ・Claude連携。初回のみ5分。</p>
+        <div class="step-badge">1日</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h4>AI開発開始</h4>
+        <p>システム自動構築・品質確認・調整。</p>
+        <div class="step-badge">2〜3日</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h4>本番公開</h4>
+        <p>インターネット公開・運用開始。以降は「直して」で無制限対応。</p>
+        <div class="step-badge">1日</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section">
+  <div class="container">
+    <div class="section-tag">よくある質問</div>
+    <h2 class="section-h2">FAQ</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-num">Q01</div>
+          <h4>エンジニアがいなくても使えますか？</h4>
+        </div>
+        <p class="faq-a">はい。「CRM作って」のような一言で構築可能です。プログラミング知識は一切不要。導入マニュアルをお渡ししますのでご安心ください。</p>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-num">Q02</div>
+          <h4>iOSアプリも作れますか？</h4>
+        </div>
+        <p class="faq-a">可能です。「タスク管理iOSアプリ作って」の一言で構築可能です。SwiftUI + CoreDataによるネイティブアプリ生成に対応しています。</p>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-num">Q03</div>
+          <h4>修正回数に制限はありますか？</h4>
+        </div>
+        <p class="faq-a">制限はありません。「ここを直して」と伝えるだけで何度でも修正・機能追加できます。</p>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-num">Q04</div>
+          <h4>既存システムとの連携は可能ですか？</h4>
+        </div>
+        <p class="faq-a">はい。API連携・データ移行にも対応しています。自動生成の範囲でサポートします。</p>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-num">Q05</div>
+          <h4>セキュリティは大丈夫ですか？</h4>
+        </div>
+        <p class="faq-a">OWASP Top10準拠、HIPAA/GDPR/PCI-DSS対応など、エンタープライズレベルの安全性を標準搭載しています。</p>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="q-num">Q06</div>
+          <h4>Claudeの利用料は別途かかりますか？</h4>
+        </div>
+        <p class="faq-a">はい。Anthropic社のClaude（$110〜200/月）とAqua Voice（$10/月、任意）をお客様にて別途ご契約いただきます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section id="cta-final">
+  <div style="position:relative;z-index:1">
+    <div class="cta-tag">次の一手</div>
+    <h2 class="cta-h2">
+      次に不足するのは、<br>
+      アイデアではない。<br>
+      <span class="hl">"開発できる会社"</span>かどうか。
+    </h2>
+    <p class="cta-sub">
+      あなたの会社に、AI開発組織を。<br>
+      まずは無料相談から。担当者がヒアリングの上、最適な構成をご提案します。
+    </p>
+    <div class="cta-buttons">
+      <a href="mailto:onuki.h@soloptilink.com" class="btn-primary" style="font-size:16px;padding:16px 40px;">→ 無料相談する</a>
+      <a href="#pricing" class="btn-secondary">料金を確認する</a>
+    </div>
+    <p class="cta-note">📧 onuki.h@soloptilink.com　|　株式会社SoloptiLink</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="logo">Solopti<span>Link</span>AI</div>
+    <p>日本のシステム開発の最適解 © 2025 SoloptiLink Inc.</p>
+    <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text3)">32 Agents · 485+ Modules</p>
+  </div>
+</footer>
+
+
+<script>
+/* ===========================
+   SCROLL REVEAL
+   =========================== */
+const revealElements = document.querySelectorAll(
+  '.problem-card, .uc-card, .ba-col, .roi-card, .sec-card, .testi-card, .step-card, .faq-item, .agent-card, .diff-col, .price-col'
+);
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      // stagger delay based on sibling index
+      const siblings = [...entry.target.parentElement.children];
+      const idx = siblings.indexOf(entry.target);
+      entry.target.style.transitionDelay = `${idx * 60}ms`;
+      entry.target.classList.add('revealed');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+// Add base styles for reveal
+const revealStyle = document.createElement('style');
+revealStyle.textContent = `
+  .problem-card, .uc-card, .ba-col, .roi-card, .sec-card,
+  .testi-card, .step-card, .faq-item, .agent-card, .diff-col, .price-col {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .revealed {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+`;
+document.head.appendChild(revealStyle);
+revealElements.forEach(el => revealObserver.observe(el));
+
+
+/* ===========================
+   NAV — ACTIVE SECTION HIGHLIGHT
+   =========================== */
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+
+sections.forEach(s => sectionObserver.observe(s));
+
+// Active nav link style
+const navStyle = document.createElement('style');
+navStyle.textContent = `.nav-links a.active { color: var(--white) !important; }`;
+document.head.appendChild(navStyle);
+
+
+/* ===========================
+   NAV — SCROLL SHADOW
+   =========================== */
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 20) {
+    nav.style.boxShadow = '0 1px 40px rgba(0,0,0,0.6)';
+  } else {
+    nav.style.boxShadow = 'none';
+  }
+}, { passive: true });
+
+
+/* ===========================
+   FAQ — ACCORDION
+   =========================== */
+document.querySelectorAll('.faq-item').forEach(item => {
+  const q = item.querySelector('.faq-q');
+  const a = item.querySelector('.faq-a');
+  const h4 = item.querySelector('h4');
+
+  // Initial state
+  a.style.cssText = 'max-height:0;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0;margin-top:0;';
+
+  // Toggle icon
+  const icon = document.createElement('span');
+  icon.textContent = '+';
+  icon.style.cssText = 'font-family:"Space Mono",monospace;font-size:20px;color:var(--blue);transition:transform 0.3s;flex-shrink:0;margin-left:auto;';
+  q.appendChild(icon);
+
+  let open = false;
+  q.style.cursor = 'pointer';
+  q.addEventListener('click', () => {
+    open = !open;
+    if (open) {
+      a.style.maxHeight = a.scrollHeight + 'px';
+      a.style.opacity = '1';
+      a.style.marginTop = '12px';
+      icon.style.transform = 'rotate(45deg)';
+    } else {
+      a.style.maxHeight = '0';
+      a.style.opacity = '0';
+      a.style.marginTop = '0';
+      icon.style.transform = 'rotate(0deg)';
+    }
+    // close others
+    document.querySelectorAll('.faq-item').forEach(other => {
+      if (other !== item) {
+        const oa = other.querySelector('.faq-a');
+        const oi = other.querySelector('.faq-q span:last-child');
+        oa.style.maxHeight = '0';
+        oa.style.opacity = '0';
+        oa.style.marginTop = '0';
+        if (oi) oi.style.transform = 'rotate(0deg)';
+      }
+    });
+  });
+});
+
+
+/* ===========================
+   HERO STATS — COUNT UP
+   =========================== */
+function countUp(el, target, suffix, duration = 1500) {
+  const start = performance.now();
+  const isDecimal = target % 1 !== 0;
+  const update = (now) => {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = isDecimal
+      ? (eased * target).toFixed(1)
+      : Math.round(eased * target);
+    el.textContent = current + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      // hero stats
+      document.querySelectorAll('.testi-metrics .tm-num').forEach(el => {
+        const text = el.textContent.trim();
+        if (text === '97%') countUp(el, 97, '%');
+        if (text === '1/5') { /* skip ratio */ }
+        if (text === '50回') countUp(el, 50, '回');
+        if (text === '22') countUp(el, 22, '');
+      });
+      statsObserver.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+
+const metricsEl = document.querySelector('.testi-metrics');
+if (metricsEl) statsObserver.observe(metricsEl);
+
+
+/* ===========================
+   ROI BANNER — BIG NUMBER COUNT UP
+   =========================== */
+const roiBannerObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const bigNum = entry.target.querySelector('.big-num');
+      if (bigNum) {
+        const small = bigNum.querySelector('small');
+        const smallText = small ? small.outerHTML : '';
+        countUp({ 
+          get textContent() { return ''; },
+          set textContent(v) { bigNum.innerHTML = v + smallText; }
+        }, 316, '', 1800);
+      }
+      roiBannerObserver.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+const roiBanner = document.querySelector('.roi-banner');
+if (roiBanner) roiBannerObserver.observe(roiBanner);
+
+
+/* ===========================
+   AGENT NODES — HOVER GLOW LINES (canvas)
+   =========================== */
+(function() {
+  const visual = document.querySelector('.hero-visual');
+  if (!visual) return;
+
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;';
+  visual.insertBefore(canvas, visual.firstChild);
+
+  function resizeCanvas() {
+    canvas.width = visual.offsetWidth;
+    canvas.height = visual.offsetHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const ctx = canvas.getContext('2d');
+  let frame = 0;
+
+  function drawLines() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const nodes = visual.querySelectorAll('.agent-node');
+
+    nodes.forEach((node, i) => {
+      const rect = node.getBoundingClientRect();
+      const vRect = visual.getBoundingClientRect();
+      const nx = rect.left - vRect.left + rect.width / 2;
+      const ny = rect.top - vRect.top + rect.height / 2;
+
+      const phase = (frame / 120 + i / nodes.length) % 1;
+      const alpha = 0.05 + 0.08 * Math.sin(phase * Math.PI * 2);
+
+      const grad = ctx.createLinearGradient(cx, cy, nx, ny);
+      grad.addColorStop(0, `rgba(10,132,255,${alpha * 2})`);
+      grad.addColorStop(1, `rgba(0,212,255,0)`);
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(nx, ny);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    frame++;
+    requestAnimationFrame(drawLines);
+  }
+  drawLines();
+})();
+
+
+/* ===========================
+   SMOOTH SCROLL FOR ANCHOR LINKS
+   =========================== */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      const top = target.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+
+/* ===========================
+   FLOATING CTA (MOBILE)
+   =========================== */
+const floatStyle = document.createElement('style');
+floatStyle.textContent = `
+  .float-cta {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    white-space: nowrap;
+    box-shadow: 0 8px 40px rgba(6,199,85,0.4);
+    animation: floatBounce 3s ease-in-out infinite;
+  }
+  @keyframes floatBounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+  }
+  @media (max-width: 768px) { .float-cta { display: inline-flex; } }
+`;
+document.head.appendChild(floatStyle);
+
+const floatBtn = document.createElement('a');
+floatBtn.href = '#cta-final';
+floatBtn.className = 'btn-primary float-cta';
+floatBtn.textContent = '→ 無料相談する';
+document.body.appendChild(floatBtn);
+
+// Hide when CTA section is visible
+const ctaFinalObserver = new IntersectionObserver((entries) => {
+  floatBtn.style.opacity = entries[0].isIntersecting ? '0' : '1';
+  floatBtn.style.pointerEvents = entries[0].isIntersecting ? 'none' : 'auto';
+}, { threshold: 0.3 });
+const ctaFinalEl = document.querySelector('#cta-final');
+if (ctaFinalEl) ctaFinalObserver.observe(ctaFinalEl);
+
+
+/* ===========================
+   TYPING EFFECT — HERO BADGE
+   =========================== */
+const badge = document.querySelector('.hero-badge');
+if (badge) {
+  const originalText = badge.textContent.trim();
+  const dot = badge.querySelector('.badge-dot');
+  badge.innerHTML = '';
+  badge.appendChild(dot);
+  const span = document.createElement('span');
+  badge.appendChild(span);
+
+  let i = 0;
+  const type = () => {
+    if (i <= originalText.length) {
+      span.textContent = originalText.slice(0, i);
+      i++;
+      setTimeout(type, 28);
+    }
+  };
+  setTimeout(type, 400);
+}
+</script>
+
+</body>
+</html>
